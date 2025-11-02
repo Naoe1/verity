@@ -19,6 +19,7 @@ class ModRequests extends Model
 
     protected $casts = [
         'moderation_result' => 'array',
+        'request_metadata' => 'array',
     ];
 
     public function user()

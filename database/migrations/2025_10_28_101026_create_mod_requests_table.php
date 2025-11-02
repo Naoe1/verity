@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('mod_requests', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('content_type')->default('text');
+            $table->longText('content');
+            $table->json('request_metadata')->nullable();
+            $table->json('moderation_result')->nullable();
             $table->timestamps();
         });
     }
