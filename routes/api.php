@@ -3,4 +3,4 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ModerateController;
 
-Route::get('/', [ModerateController::class, 'moderateContent']);
+Route::post('/text', [ModerateController::class, 'moderateContentText']);
