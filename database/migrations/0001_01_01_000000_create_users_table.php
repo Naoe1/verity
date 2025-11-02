@@ -18,6 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('api_token', 64)->unique()->nullable();
+            $table->integer('requests_used')->default(0);
+            $table->integer('requests_limit')->default(100);
             $table->rememberToken();
             $table->timestamps();
         });
