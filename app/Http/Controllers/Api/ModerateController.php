@@ -43,9 +43,9 @@ class ModerateController extends Controller
         $categories = $request->input('categories', ['Hate', 'SelfHarm', 'Sexual', 'Violence']);
         $outputType = $request->input('outputType', 'FourSeverityLevels');
 
-        $apiKey = env('AZURE_CONTENT_API_KEY');
-        $endpoint = rtrim(env('AZURE_CONTENT_ENDPOINT', ''), '/');
-        $apiVersion = env('AZURE_CONTENT_API_VERSION', '2024-09-01');
+        $apiKey = config('services.azure_content.key');
+        $endpoint = rtrim((string) config('services.azure_content.endpoint', ''), '/');
+        $apiVersion = (string) config('services.azure_content.api_version', '2024-09-01');
 
         $user->incrementRequestsUsed();
 
@@ -75,6 +75,7 @@ class ModerateController extends Controller
                     'api_version' => $apiVersion,
                 ],
                 'moderation_result' => $body,
+                'status' => $httpResponse->successful() ? 'success' : 'fail',
             ]);
 
             if (!$httpResponse->successful()) {
@@ -104,6 +105,7 @@ class ModerateController extends Controller
                     'exception' => get_class($e),
                     'message' => $e->getMessage(),
                 ],
+                'status' => 'fail',
             ]);
 
             return response()->json([
@@ -191,6 +193,7 @@ class ModerateController extends Controller
                     'content' => $originalFilename . ' (analysis failed)',
                     'request_metadata' => $requestMetadata,
                     'moderation_result' => $analysisBody,
+                    'status' => 'fail',
                 ]);
                 return response()->json([
                     'error' => 'Azure Content Safety error',
@@ -223,6 +226,7 @@ class ModerateController extends Controller
                     'content' => $originalFilename . ' (upload failed)',
                     'request_metadata' => $requestMetadata,
                     'moderation_result' => $analysisBody,
+                    'status' => 'fail',
                 ]);
                 return response()->json([
                     'error' => 'Upload failed after successful analysis',
@@ -244,6 +248,7 @@ class ModerateController extends Controller
                     'path' => $path
                 ]]),
                 'moderation_result' => $analysisBody,
+                'status' => 'success',
             ]);
 
             return response()->json([
@@ -268,6 +273,7 @@ class ModerateController extends Controller
                     'exception' => get_class($e),
                     'message' => $e->getMessage(),
                 ],
+                'status' => 'fail',
             ]);
 
             return response()->json([

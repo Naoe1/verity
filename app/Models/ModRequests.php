@@ -15,6 +15,7 @@ class ModRequests extends Model
         'content',
         'request_metadata',
         'moderation_result',
+        'status',
     ];
 
     protected $casts = [
