@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'azure_content' => [
+        'key' => env('AZURE_CONTENT_API_KEY'),
+        'endpoint' => env('AZURE_CONTENT_ENDPOINT'),
+        'api_version' => env('AZURE_CONTENT_API_VERSION', '2024-09-01'),
+    ],
+
 ];
