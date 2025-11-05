@@ -14,14 +14,29 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+interface TextRequestMetadata {
+    categories: ('Hate' | 'SelfHarm' | 'Sexual' | 'Violence')[];
+    outputType: 'FourSeverityLevels';
+    api_version: string;
+}
+
+interface ImageRequestMetadata extends TextRequestMetadata {
+    image: {
+        path: string;
+        type: 'upload';
+        original: string;
+    };
+}
+
+type RequestMetadata = TextRequestMetadata | ImageRequestMetadata;
+
 interface RequestItem {
     id: number;
     content_type: 'text' | 'image' | string;
     content: string;
     status?: 'success' | 'fail';
-    request_metadata?: Record<string, any> | null;
+    request_metadata?: RequestMetadata | null;
     moderation_result?: {
-        blocklistsMatch?: any[];
         categoriesAnalysis?: {
             category: 'Hate' | 'SelfHarm' | 'Sexual' | 'Violence';
             severity: number;
@@ -125,8 +140,12 @@ export default function RequestsIndex() {
             return t.length > 120 ? t.slice(0, 117) + '…' : t;
         }
         const name =
-            (item.request_metadata as any)?.image?.original_filename ||
-            'Image upload';
+            item.content_type === 'image' &&
+            item.request_metadata &&
+            'image' in item.request_metadata
+                ? item.request_metadata.image.original
+                : undefined;
+
         return name;
     };
 

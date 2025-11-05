@@ -12,14 +12,28 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
+interface TextRequestMetadata {
+    categories: ('Hate' | 'SelfHarm' | 'Sexual' | 'Violence')[];
+    outputType: 'FourSeverityLevels';
+    api_version: string;
+}
+
+interface ImageRequestMetadata extends TextRequestMetadata {
+    image: {
+        path: string;
+        type: 'upload';
+        original: string;
+    };
+}
+
+type RequestMetadata = TextRequestMetadata | ImageRequestMetadata;
 interface RequestItem {
     id: number;
     content_type: 'text' | 'image' | string;
     content: string;
     status?: 'success' | 'fail';
-    request_metadata?: Record<string, any> | null;
+    request_metadata?: RequestMetadata | null;
     moderation_result?: {
-        blocklistsMatch?: any[];
         categoriesAnalysis?: {
             category: 'Hate' | 'SelfHarm' | 'Sexual' | 'Violence';
             severity: number;
@@ -43,7 +57,12 @@ export default function RequestShow() {
         { title: `#${item.id}`, href: `/requests/${item.id}` },
     ];
 
-    const filename = (item.request_metadata as any)?.image?.original_filename;
+    const filename =
+        item.content_type === 'image' &&
+        item.request_metadata &&
+        'image' in item.request_metadata
+            ? item.request_metadata.image.original
+            : undefined;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
