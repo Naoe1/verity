@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ModerateContentImageRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class ModerateContentImageRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,5 +28,12 @@ class ModerateContentImageRequest extends FormRequest
             'categories' => 'nullable|array',
             'categories.*' => 'in:Hate,SelfHarm,Sexual,Violence',
         ];
+    }
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'message' => 'The given data was invalid.',
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }
