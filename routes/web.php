@@ -11,6 +11,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('docs/api', function () {
+    return Inertia::render('docs/api');
+})->name('docs.api');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
