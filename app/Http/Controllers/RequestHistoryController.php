@@ -53,7 +53,7 @@ class RequestHistoryController extends Controller
         $userId = $request->user()->id;
         $record = ModRequests::where('id', $id)->where('user_id', $userId)->firstOrFail();
         $temporaryUrl = null;
-        if ($record->content_type === 'image') {
+        if ($record->content_type === 'image' && $record->status === 'success') {
             $temporaryUrl = Storage::disk('azure')->temporaryUrl(
                 $record->content,
                 now()->addMinutes(5)
