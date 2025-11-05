@@ -67,12 +67,13 @@ class ModerationService
                 ];
             }
 
+
             return [
                 'ok' => true,
                 'http_status' => 200,
                 'payload' => [
                     'request_id' => $modReq->id,
-                    'result' => $body,
+                    'result' => $body['categoriesAnalysis'],
                 ],
             ];
         } catch (\Throwable $e) {
@@ -215,7 +216,7 @@ class ModerationService
                 'payload' => [
                     'message' => 'Analyzed and uploaded successfully',
                     'request_id' => $modReq->id,
-                    'analysis' => $analysisBody,
+                    'analysis' => $analysisBody['categoriesAnalysis'],
                     'upload' => [
                         'path' => $path,
                         'original_filename' => $originalFilename,

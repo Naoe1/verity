@@ -25,10 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 type Category = 'Hate' | 'SelfHarm' | 'Sexual' | 'Violence';
 
-type AnalysisResult = {
-    blocklistsMatch: any[];
-    categoriesAnalysis: { category: Category; severity: number }[];
-};
+type CategoryAnalysis = { category: Category; severity: number }[];
 
 const CATEGORIES: Category[] = ['Hate', 'SelfHarm', 'Sexual', 'Violence'];
 
@@ -60,19 +57,19 @@ export default function Dashboard() {
     const [textContent, setTextContent] = useState<string>('');
     const [textLoading, setTextLoading] = useState(false);
     const [textError, setTextError] = useState<string | null>(null);
-    const [textResponse, setTextResponse] = useState<AnalysisResult | null>(
+    const [textResponse, setTextResponse] = useState<CategoryAnalysis | null>(
         null,
     );
 
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageLoading, setImageLoading] = useState(false);
     const [imageError, setImageError] = useState<string | null>(null);
-    const [imageResponse, setImageResponse] = useState<AnalysisResult | null>(
+    const [imageResponse, setImageResponse] = useState<CategoryAnalysis | null>(
         null,
     );
 
     const computeFlags = (
-        result: AnalysisResult | null,
+        result: CategoryAnalysis | null,
         t: Record<Category, number>,
     ) => {
         if (!result)
@@ -86,9 +83,7 @@ export default function Dashboard() {
         const map: Record<Category, { severity: number; threshold: number }> =
             {} as any;
         for (const c of CATEGORIES) {
-            const entry = result.categoriesAnalysis.find(
-                (x) => x.category === c,
-            );
+            const entry = result.find((x) => x.category === c);
             const severity = entry?.severity ?? 0;
             map[c] = { severity, threshold: t[c] };
         }
@@ -122,7 +117,10 @@ export default function Dashboard() {
             if (!res.ok) {
                 setTextError(data?.error || 'Request failed');
             } else {
-                setTextResponse(data?.result ?? null);
+                // API returns: { request_id: number, result: CategoryAnalysis }
+                setTextResponse(
+                    Array.isArray(data?.result) ? data.result : null,
+                );
             }
         } catch (e: any) {
             setTextError(e?.message || 'Network error');
@@ -151,7 +149,10 @@ export default function Dashboard() {
             if (!res.ok) {
                 setImageError(data?.error || 'Request failed');
             } else {
-                setImageResponse(data?.analysis ?? null);
+                // API returns: { analysis: CategoryAnalysis, ... }
+                setImageResponse(
+                    Array.isArray(data?.analysis) ? data.analysis : null,
+                );
             }
         } catch (e: any) {
             setImageError(e?.message || 'Network error');
@@ -211,13 +212,15 @@ export default function Dashboard() {
                                         Copy
                                     </Button>
                                 </div>
-                                <Link
-                                    href="./up"
-                                    target="_blank"
-                                    className="font-medium hover:underline"
-                                >
-                                    API status
-                                </Link>
+                                <div className="flex items-center">
+                                    <Link
+                                        href="./up"
+                                        target="_blank"
+                                        className="text-center font-medium hover:underline"
+                                    >
+                                        API Status
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col items-center justify-center px-6">
