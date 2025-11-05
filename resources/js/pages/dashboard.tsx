@@ -44,13 +44,15 @@ export default function Dashboard() {
     const { props } = usePage<SharedData>();
     const { name, api_token: apiKey } = props.auth.user;
     const apiBaseUrl = window.location.origin;
-    const curlCmd = `curl -s -H "Authorization: Bearer ${apiKey}" -H "Content-Type: application/json" -d "{\"content\":\"Hello world\"}" ${apiBaseUrl}${API_TEXT_ENDPOINT}`;
+    const curlCmd = `curl -s -H "Authorization: Bearer ${apiKey}" -H "Content-Type: application/json" -d '{"content":"Hello world"}' ${apiBaseUrl}${API_TEXT_ENDPOINT}`;
 
     const copy = async (text: string) => {
         try {
             await navigator.clipboard.writeText(text);
             toast.success('Copied to clipboard');
-        } catch {}
+        } catch (err) {
+            console.error('Clipboard copy failed:', err);
+        }
     };
 
     const [thresholds, setThresholds] =
@@ -82,8 +84,11 @@ export default function Dashboard() {
                     { severity: number; threshold: number }
                 >,
             };
-        const map: Record<Category, { severity: number; threshold: number }> =
-            {} as any;
+        const map = {} as Record<
+            Category,
+            { severity: number; threshold: number }
+        >;
+
         for (const c of CATEGORIES) {
             const entry = result.find((x) => x.category === c);
             const severity = entry?.severity ?? 0;
@@ -119,13 +124,16 @@ export default function Dashboard() {
             if (!res.ok) {
                 setTextError(data?.error || 'Request failed');
             } else {
-                // API returns: { request_id: number, result: CategoryAnalysis }
                 setTextResponse(
                     Array.isArray(data?.result) ? data.result : null,
                 );
             }
-        } catch (e: any) {
-            setTextError(e?.message || 'Network error');
+        } catch (e) {
+            if (e instanceof Error) {
+                setTextError(e.message);
+            } else {
+                setTextError('Network error');
+            }
         } finally {
             setTextLoading(false);
         }
@@ -151,13 +159,16 @@ export default function Dashboard() {
             if (!res.ok) {
                 setImageError(data?.error || 'Request failed');
             } else {
-                // API returns: { analysis: CategoryAnalysis, ... }
                 setImageResponse(
                     Array.isArray(data?.analysis) ? data.analysis : null,
                 );
             }
-        } catch (e: any) {
-            setImageError(e?.message || 'Network error');
+        } catch (e) {
+            if (e instanceof Error) {
+                setTextError(e.message);
+            } else {
+                setTextError('Network error');
+            }
         } finally {
             setImageLoading(false);
         }
