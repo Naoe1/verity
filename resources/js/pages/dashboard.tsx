@@ -15,6 +15,7 @@ import { dashboard } from '@/routes';
 import { SharedData, type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -48,6 +49,7 @@ export default function Dashboard() {
     const copy = async (text: string) => {
         try {
             await navigator.clipboard.writeText(text);
+            toast.success('Copied to clipboard');
         } catch {}
     };
 
