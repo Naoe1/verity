@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -34,7 +32,6 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'api_token'
     ];
 
     /**
@@ -58,5 +55,15 @@ class User extends Authenticatable
         $this->save();
 
         return $token;
+    }
+
+    public function canMakeRequest(): bool
+    {
+        return $this->requests_used < $this->requests_limit;
+    }
+
+    public function incrementRequestsUsed(int $count = 1): void
+    {
+        $this->increment('requests_used', $count);
     }
 }

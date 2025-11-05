@@ -14,20 +14,7 @@ class ModerateController extends Controller
 {
     public function moderateContentText(Request $request)
     {
-        $apiToken = $request->bearerToken();
-        if (empty($apiToken)) {
-            return response()->json(['error' => 'Missing API token. Provide it as Authorization: Bearer'], 401);
-        }
-
-        $user = User::where('api_token', $apiToken)->first();
-
-        if (!$user) {
-            return response()->json(['error' => 'Invalid API token'], 401);
-        }
-
-        if (!$user->canMakeRequest()) {
-            return response()->json(['error' => 'Request limit exceeded'], 429);
-        }
+        $user = $request->attributes->get('user');
 
         $validator = Validator::make($request->all(), [
             'content' => 'required|string',
@@ -117,20 +104,7 @@ class ModerateController extends Controller
     }
     public function moderateContentImage(Request $request)
     {
-        $apiToken = $request->bearerToken();
-        if (empty($apiToken)) {
-            return response()->json(['error' => 'Missing API token. Provide it as Authorization: Bearer'], 401);
-        }
-
-        $user = User::where('api_token', $apiToken)->first();
-
-        if (!$user) {
-            return response()->json(['error' => 'Invalid API token'], 401);
-        }
-
-        if (!$user->canMakeRequest()) {
-            return response()->json(['error' => 'Request limit exceeded'], 429);
-        }
+        $user = $request->attributes->get('user');
 
         $validator = Validator::make($request->all(), [
             'image' => 'required|image|max:10240',
@@ -151,9 +125,9 @@ class ModerateController extends Controller
         $outputType = $request->input('outputType', 'FourSeverityLevels');
         $originalFilename = $file->getClientOriginalName();
 
-        $apiKey = env('AZURE_CONTENT_API_KEY');
-        $endpoint = rtrim(env('AZURE_CONTENT_ENDPOINT', ''), '/');
-        $apiVersion = env('AZURE_CONTENT_API_VERSION', '2024-09-01');
+        $apiKey = config('services.azure_content.key');
+        $endpoint = rtrim((string) config('services.azure_content.endpoint', ''), '/');
+        $apiVersion = (string) config('services.azure_content.api_version', '2024-09-01');
 
         $bytes = file_get_contents($file->getRealPath());
 
