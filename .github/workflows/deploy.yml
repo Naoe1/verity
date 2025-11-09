@@ -65,4 +65,4 @@ jobs:
             sudo systemctl reload php8.3-fpm
 
             # Cleanup
-            sudo rm -rf /var/www/your-laravel-app-temp
+            sudo rm -rf /var/www/verity-temp
