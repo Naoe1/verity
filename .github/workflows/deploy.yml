@@ -27,6 +27,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: '.'
           target: '/var/www/verity-temp'
+          debug: true
 
       - name: Run deployment commands
         uses: appleboy/ssh-action@v0.1.7
